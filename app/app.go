@@ -172,8 +172,9 @@ import (
 	_ "github.com/ethereum/go-ethereum/eth/tracers/native"
 )
 
+// EXTENSION-CHAIN
 const (
-	Name = "cronos"
+	Name = "supernova"
 
 	// AddrLen is the allowed length (in bytes) for an address.
 	//
