@@ -40,11 +40,11 @@
             inherit (pkgs) rocksdb;
           };
           apps = {
-            cronosd = mkApp packages.cronosd;
-            cronosd-testnet = mkApp packages.cronosd-testnet;
+            supernovad = mkApp packages.supernovad;
+            # cronosd-testnet = mkApp packages.cronosd-testnet;
           };
-          defaultPackage = packages.cronosd;
-          defaultApp = apps.cronosd;
+          defaultPackage = packages.supernovad;
+          defaultApp = apps.supernovad;
           devShells = rec {
             default = pkgs.mkShell {
               buildInputs = [

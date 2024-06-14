@@ -17,9 +17,9 @@ let
       --owner=0 --group=0 --mode=u+rw,uga+r --hard-dereference . \
       | gzip -9 > $out
   '';
-  bundle-win-exe = drv: callPackage ./bundle-win-exe.nix { cronosd = drv; };
+  bundle-win-exe = drv: callPackage ./bundle-win-exe.nix { supernovad = drv; };
   matrix = lib.cartesianProductOfSets {
-    network = [ "mainnet" "testnet" ];
+    network = [ "mainnet" ];
     pkgtype = [
       "nix" # normal nix package
       "bundle" # relocatable bundled package
@@ -30,27 +30,27 @@ in
 builtins.listToAttrs (builtins.map
   ({ network, pkgtype }: {
     name = builtins.concatStringsSep "-" (
-      [ "cronosd" ] ++
+      [ "supernovad" ] ++
       lib.optional (network != "mainnet") network ++
       lib.optional (pkgtype != "nix") pkgtype
     );
     value =
       let
-        cronosd = callPackage ../. {
+        supernovad = callPackage ../. {
           inherit rev network;
         };
         bundle =
           if stdenv.hostPlatform.isWindows then
-            bundle-win-exe cronosd
+            bundle-win-exe supernovad
           else
-            bundle-exe cronosd;
+            bundle-exe supernovad;
       in
       if pkgtype == "bundle" then
         bundle
       else if pkgtype == "tarball" then
         make-tarball bundle
       else
-        cronosd;
+        supernovad;
   })
   matrix
 )
