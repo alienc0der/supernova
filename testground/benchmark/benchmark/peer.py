@@ -12,6 +12,7 @@ from .utils import patch_json, patch_toml
 VAL_INITIAL_AMOUNT = "100000000000000000000basecro"
 VAL_STAKED_AMOUNT = "10000000000000000000basecro"
 ACC_INITIAL_AMOUNT = "100000000000000000000basecro"
+MEMPOOL_SIZE = 50000
 
 
 def bootstrap(ctx: Context, cli) -> PeerPacket:
@@ -30,19 +31,13 @@ def bootstrap(ctx: Context, cli) -> PeerPacket:
     )
     account_addr = cli("keys", "show", "account", "--address", keyring_backend="test")
     accounts = [
-        GenesisAccount(
-            address=validator_addr,
-            balance=VAL_INITIAL_AMOUNT,
-        ),
-        GenesisAccount(
-            address=account_addr,
-            balance=ACC_INITIAL_AMOUNT,
-        ),
+        GenesisAccount(address=validator_addr, balance=VAL_INITIAL_AMOUNT),
+        GenesisAccount(address=account_addr, balance=ACC_INITIAL_AMOUNT),
     ]
 
     node_id = cli("comet", "show-node-id")
     peer_id = f"{node_id}@{ip}:26656"
-    peer = PeerPacket(
+    current = PeerPacket(
         ip=str(ip),
         node_id=node_id,
         peer_id=peer_id,
@@ -50,22 +45,18 @@ def bootstrap(ctx: Context, cli) -> PeerPacket:
     )
 
     if ctx.is_validator:
-        peer.gentx = gentx(cli, ctx.params.chain_id)
+        current.gentx = gentx(cli, ctx.params.chain_id)
 
     data = ctx.sync.publish_subscribe_simple(
-        "peers", peer.dict(), ctx.params.test_instance_count
+        "peers", current.dict(), ctx.params.test_instance_count
     )
     peers: List[PeerPacket] = [PeerPacket.model_validate(item) for item in data]
 
     config_path = Path.home() / ".cronos" / "config"
-    if ctx.is_leader:
+    if ctx.is_fullnode_leader:
         # prepare genesis file and publish
         for peer in peers:
             for account in peer.accounts:
-                if ctx.is_validator and account.address == validator_addr:
-                    # if leader is also validator, it's validator account is already
-                    # added in gentx
-                    continue
                 cli("genesis", "add-genesis-account", account.address, account.balance)
         collect_gen_tx(cli, peers)
         cli("genesis", "validate")
@@ -74,6 +65,7 @@ def bootstrap(ctx: Context, cli) -> PeerPacket:
             {
                 "consensus.params.block.max_gas": "81500000",
                 "app_state.evm.params.evm_denom": "basecro",
+                "app_state.feemarket.params.no_base_fee": True,
             },
         )
         ctx.sync.publish("genesis", genesis)
@@ -83,22 +75,27 @@ def bootstrap(ctx: Context, cli) -> PeerPacket:
         genesis_file.write_text(json.dumps(genesis))
         cli("genesis", "validate")
 
-    # update persistent_peers in config.toml
-    patch_toml(
-        config_path / "config.toml",
-        {
-            "p2p.persistent_peers": connect_all(peer, peers),
-            "mempool.recheck": "false",
-        },
-    )
-    patch_toml(
-        config_path / "app.toml",
-        {
-            "minimum-gas-prices": "0basecro",
-        },
-    )
+    # update persistent_peers and other configs in config.toml
+    config_patch = {
+        "p2p.persistent_peers": connect_all(current, peers),
+        "mempool.recheck": "false",
+        "mempool.size": MEMPOOL_SIZE,
+        "consensus.timeout_commit": "2s",
+    }
+    if ctx.is_validator:
+        config_patch["tx_index.indexer"] = "null"
 
-    return peer
+    app_patch = {
+        "minimum-gas-prices": "0basecro",
+        "index-events": ["ethereum_tx.ethereumTxHash"],
+        "memiavl.enable": True,
+        "mempool.max-txs": MEMPOOL_SIZE,
+    }
+
+    patch_toml(config_path / "config.toml", config_patch)
+    patch_toml(config_path / "app.toml", app_patch)
+
+    return current
 
 
 def gentx(cli, chain_id):

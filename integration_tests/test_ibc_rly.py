@@ -11,10 +11,10 @@ from .ibc_utils import (
     assert_duplicate,
     cronos_transfer_source_tokens,
     cronos_transfer_source_tokens_with_proxy,
-    get_balance,
     ibc_denom,
     ibc_incentivized_transfer,
     ibc_multi_transfer,
+    ibc_transfer,
     prepare_network,
     rly_transfer,
 )
@@ -22,13 +22,11 @@ from .utils import (
     ADDRS,
     CONTRACT_ABIS,
     bech32_to_eth,
-    eth_to_bech32,
     get_logs_since,
     get_method_map,
     get_topic_data,
     module_address,
     parse_events_rpc,
-    wait_for_fn,
     wait_for_new_blocks,
 )
 
@@ -233,19 +231,8 @@ def test_ibc(ibc):
     w3 = ibc.cronos.w3
     wait_for_new_blocks(ibc.cronos.cosmos_cli(), 1)
     start = w3.eth.get_block_number()
-    rly_transfer(ibc)
+    ibc_transfer(ibc)
     denom = ibc_denom(channel, src_denom)
-    dst_addr = eth_to_bech32(cronos_signer2)
-    old_dst_balance = get_balance(ibc.cronos, dst_addr, dst_denom)
-    new_dst_balance = 0
-
-    def check_balance_change():
-        nonlocal new_dst_balance
-        new_dst_balance = get_balance(ibc.cronos, dst_addr, dst_denom)
-        return new_dst_balance != old_dst_balance
-
-    wait_for_fn("balance change", check_balance_change)
-    assert old_dst_balance + dst_amount == new_dst_balance
     logs = get_logs_since(w3, CONTRACT, start)
     chainmain_cli = ibc.chainmain.cosmos_cli()
     relayer0 = chainmain_cli.address("relayer")

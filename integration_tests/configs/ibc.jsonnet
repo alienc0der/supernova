@@ -51,18 +51,12 @@ config {
         coins: '2234240000000000000cro',
         staked: '10000000000000cro',
         mnemonic: '${VALIDATOR1_MNEMONIC}',
-        client_config: {
-          'broadcast-mode': 'block',
-        },
         base_port: 26800,
       },
       {
         coins: '987870000000000000cro',
         staked: '20000000000000cro',
         mnemonic: '${VALIDATOR2_MNEMONIC}',
-        client_config: {
-          'broadcast-mode': 'block',
-        },
         base_port: 26810,
       },
     ],
@@ -155,7 +149,7 @@ config {
     chains: [
       {
         id: 'cronos_777-1',
-        max_gas: 1000000,
+        max_gas: 2500000,
         gas_multiplier: 1.1,
         address_type: {
           derivation: 'ethermint',
@@ -164,7 +158,7 @@ config {
           },
         },
         gas_price: {
-          price: 10000000000000000,
+          price: 10000000,
           denom: 'basetcro',
         },
         event_source: {
