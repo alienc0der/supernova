@@ -166,10 +166,6 @@ import (
 	e2ee "github.com/crypto-org-chain/cronos/v2/x/e2ee"
 	e2eekeeper "github.com/crypto-org-chain/cronos/v2/x/e2ee/keeper"
 	e2eetypes "github.com/crypto-org-chain/cronos/v2/x/e2ee/types"
-
-	e2ee "github.com/crypto-org-chain/cronos/v2/x/e2ee"
-	e2eekeeper "github.com/crypto-org-chain/cronos/v2/x/e2ee/keeper"
-	e2eetypes "github.com/crypto-org-chain/cronos/v2/x/e2ee/types"
 	"github.com/ethereum/go-ethereum/common"
 
 	// force register the extension json-rpc.
@@ -334,9 +330,6 @@ type App struct {
 	// Ethermint keepers
 	EvmKeeper       *evmkeeper.Keeper
 	FeeMarketKeeper feemarketkeeper.Keeper
-
-	// e2ee keeper
-	E2EEKeeper e2eekeeper.Keeper
 
 	// e2ee keeper
 	E2EEKeeper e2eekeeper.Keeper
