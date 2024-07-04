@@ -11,7 +11,7 @@ build() {
     network=$1
     host="$2"
     name="$3"
-    pkg="cronosd${network}-${build_type}"
+    pkg="supernovad${network}-${build_type}"
     if [[ "$host" == "native" ]]; then
         if [[ "${build_platform: -6}" == "-linux" ]]; then
             # static link for linux targets
@@ -29,7 +29,7 @@ build() {
     fi
     echo "building $FLAKE"
     nix build -L "$FLAKE"
-    cp result "cronos_${ref_name_clean:1}${network}_${name}.tar.gz"
+    cp result "supernova_${name}.tar.gz"
 }
 
 if [[ "$build_platform" == "x86_64-linux" ]]; then
@@ -47,9 +47,8 @@ else
     exit 1
 fi
 
-for network in "" "-testnet"; do
-    for t in $hosts; do
-        IFS=',' read name host <<< "${t}"
-        build "$network" "$host" "$name"
-    done
+network=""  # main network
+for t in $hosts; do
+    IFS=',' read name host <<< "${t}"
+    build "$network" "$host" "$name"
 done

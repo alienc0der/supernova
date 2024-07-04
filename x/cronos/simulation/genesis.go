@@ -12,6 +12,7 @@ import (
 	"github.com/crypto-org-chain/cronos/v2/x/cronos/types"
 )
 
+// EXTENSION-CHAIN
 const (
 	ibcCroDenomKey          = "ibc_cro_denom"
 	ibcTimeoutKey           = "ibc_timeout"

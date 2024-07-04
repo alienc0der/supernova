@@ -12,9 +12,9 @@
 name: "CodeQL"
 
 on:
+  workflow_dispatch:
   push:
       branches:
-        - main
         - release/**
       paths:
         - "**.go"

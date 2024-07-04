@@ -5,7 +5,7 @@ parent:
 
 
 <div align="center">
-  <h1> <img src="./assets/cronos.svg" alt="Cronos Logo" width="300px" /> </h1>
+  <h1> <img src="https://zenon.org/images/contents/phases/getting-started/network-of-momentum.png" alt="Zenon" width="240px" /> </h1>
 </div>
 <br />
 
@@ -39,7 +39,7 @@ parent:
 
 ## 1. Description
 
-**Cronos** is the Crypto.org EVM chain that aims to massively scale the DeFi ecosystem.
+**Supernova** is the first Zenon EVM based extension-chain.
 
 <a id="contributing" />
 
@@ -163,11 +163,6 @@ pystarport supervisorctl stop all
 
 ## 10. Useful links
 
-- [Project Website](http://cronos.org/)
-- [Technical Documentation](http://cronos.org/docs)
-- Community chatrooms (non-technical): [Discord](https://discord.gg/nsp9JTC) [Telegram](https://t.me/CryptoComOfficial)
-- Developer community channel (technical): [![Support Server](https://img.shields.io/discord/783264383978569728.svg?color=7289da&label=Cronos&logo=discord&style=flat-square)](https://discord.gg/pahqHz26q4)
 - [Ethermint](https://github.com/evmos/ethermint) by Tharsis
 - [Cosmos SDK documentation](https://docs.cosmos.network)
 - [Cosmos Discord](https://discord.gg/W8trcGV)
-- [Pystarport](https://github.com/crypto-com/pystarport/blob/main/README.md)
