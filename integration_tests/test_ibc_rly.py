@@ -16,6 +16,7 @@ from .ibc_utils import (
     ibc_multi_transfer,
     ibc_transfer,
     prepare_network,
+    rly_transfer,
 )
 from .utils import (
     ADDRS,
@@ -52,7 +53,7 @@ def ibc(request, tmp_path_factory):
     yield from prepare_network(
         path,
         name,
-        relayer=cluster.Relayer.HERMES.value,
+        relayer=cluster.Relayer.RLY.value,
     )
 
 

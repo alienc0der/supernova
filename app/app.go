@@ -174,8 +174,9 @@ import (
 	_ "github.com/ethereum/go-ethereum/eth/tracers/native"
 )
 
+// EXTENSION-CHAIN
 const (
-	Name = "cronos"
+	Name = "supernova"
 
 	// AddrLen is the allowed length (in bytes) for an address.
 	//
@@ -705,6 +706,7 @@ func New(
 
 	// Create static IBC router, add transfer route, then set and seal it
 	ibcRouter := porttypes.NewRouter()
+	// Add controller & ica auth modules to IBC router
 	// Add controller & ica auth modules to IBC router
 	ibcRouter.
 		AddRoute(icaauthtypes.ModuleName, icaControllerStack).
