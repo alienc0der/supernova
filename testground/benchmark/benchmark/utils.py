@@ -5,6 +5,7 @@ from pathlib import Path
 
 import bech32
 import tomlkit
+import web3
 from eth_account import Account
 from hexbytes import HexBytes
 from web3._utils.transactions import fill_nonce, fill_transaction_defaults
@@ -68,6 +69,20 @@ def wait_for_block(cli, target: int, timeout=40):
     return height
 
 
+def wait_for_w3(timeout=40):
+    for i in range(timeout):
+        try:
+            w3 = web3.Web3(web3.providers.HTTPProvider("http://localhost:8545"))
+            w3.eth.get_balance("0x0000000000000000000000000000000000000001")
+        except:  # noqa
+            time.sleep(1)
+            continue
+
+        break
+    else:
+        raise TimeoutError("Waited too long for web3 json-rpc to be ready.")
+
+
 def decode_bech32(addr):
     _, bz = bech32.bech32_decode(addr)
     return HexBytes(bytes(bech32.convertbits(bz, 5, 8)))
@@ -93,7 +108,6 @@ def send_transaction(w3, tx, acct, wait=True):
     return txhash
 
 
-def export_eth_account(cli, name: str) -> Account:
-    return Account.from_key(
-        cli("keys", "unsafe-export-eth-key", name, keyring_backend="test")
-    )
+def export_eth_account(cli, name: str, **kwargs) -> Account:
+    kwargs.setdefault("keyring_backend", "test")
+    return Account.from_key(cli("keys", "unsafe-export-eth-key", name, **kwargs))

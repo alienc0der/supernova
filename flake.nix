@@ -41,7 +41,6 @@
           };
           apps = {
             supernovad = mkApp packages.supernovad;
-            # cronosd-testnet = mkApp packages.cronosd-testnet;
           };
           defaultPackage = packages.supernovad;
           defaultApp = apps.supernovad;
