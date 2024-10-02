@@ -28,7 +28,7 @@ build() {
         fi
     fi
     echo "building $FLAKE"
-    nix build -L "$FLAKE"
+    nix build --no-update-lock-file --no-allow-dirty -L "$FLAKE"
     cp result "supernova_${name}.tar.gz"
 }
 

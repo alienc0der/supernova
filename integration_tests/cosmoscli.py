@@ -14,7 +14,7 @@ import requests
 from dateutil.parser import isoparse
 from pystarport.utils import build_cli_args_safe, format_doc_string, interact
 
-from .utils import get_sync_info
+from .utils import CRONOS_ADDRESS_PREFIX, get_sync_info
 
 # the default initial base fee used by integration tests
 DEFAULT_GAS_PRICE = "100000000000basetcro"
@@ -34,14 +34,14 @@ class ModuleAccount(enum.Enum):
 @format_doc_string(
     options=",".join(v.value for v in ModuleAccount.__members__.values())
 )
-def module_address(name):
+def module_address(name, prefix=CRONOS_ADDRESS_PREFIX):
     """
     get address of module accounts
 
     :param name: name of module account, values: {options}
     """
     data = hashlib.sha256(ModuleAccount(name).value.encode()).digest()[:20]
-    return bech32.bech32_encode("cro", bech32.convertbits(data, 8, 5))
+    return bech32.bech32_encode(prefix, bech32.convertbits(data, 8, 5))
 
 
 class ChainCommand:
@@ -247,6 +247,18 @@ class CosmosCLI:
         assert "error" not in rsp, rsp["error"]
         return rsp["result"]["txs"]
 
+    def query_account(self, addr, **kwargs):
+        return json.loads(
+            self.raw(
+                "query",
+                "auth",
+                "account",
+                addr,
+                home=self.data_dir,
+                **kwargs,
+            )
+        )
+
     def distribution_commission(self, addr):
         coin = json.loads(
             self.raw(
@@ -306,6 +318,18 @@ class CosmosCLI:
             )
         )
 
+    def account_by_num(self, num):
+        return json.loads(
+            self.raw(
+                "q",
+                "auth",
+                "address-by-acc-num",
+                num,
+                output="json",
+                node=self.node_rpc,
+            )
+        )
+
     def total_supply(self):
         return json.loads(
             self.raw("query", "bank", "total", output="json", node=self.node_rpc)
@@ -341,7 +365,16 @@ class CosmosCLI:
         res = res.get("pool") or res
         return int(res["bonded_tokens" if bonded else "not_bonded_tokens"])
 
-    def transfer(self, from_, to, coins, generate_only=False, fees=None, **kwargs):
+    def transfer(
+        self,
+        from_,
+        to,
+        coins,
+        generate_only=False,
+        event_query_tx=True,
+        fees=None,
+        **kwargs,
+    ):
         kwargs.setdefault("gas_prices", DEFAULT_GAS_PRICE)
         rsp = json.loads(
             self.raw(
@@ -358,7 +391,7 @@ class CosmosCLI:
                 **kwargs,
             )
         )
-        if rsp["code"] == 0:
+        if rsp["code"] == 0 and event_query_tx:
             rsp = self.event_query_tx_for(rsp["txhash"])
         return rsp
 
@@ -631,7 +664,7 @@ class CosmosCLI:
                 amount=amount,
                 pubkey=pubkey,
                 min_self_delegation=min_self_delegation,
-                # commision
+                # commission
                 commission_rate=commission_rate,
                 commission_max_rate=commission_max_rate,
                 commission_max_change_rate=commission_max_change_rate,
@@ -1205,6 +1238,27 @@ class CosmosCLI:
             rsp = self.event_query_tx_for(rsp["txhash"])
         return rsp
 
+    def ibc_upgrade_channels(self, version, from_addr, **kwargs):
+        kwargs.setdefault("gas_prices", DEFAULT_GAS_PRICE)
+        kwargs.setdefault("gas", 600000)
+        return json.loads(
+            self.raw(
+                "tx",
+                "ibc",
+                "channel",
+                "upgrade-channels",
+                json.dumps(version),
+                "-y",
+                "--json",
+                from_=from_addr,
+                keyring_backend="test",
+                chain_id=self.chain_id,
+                home=self.data_dir,
+                stderr=subprocess.DEVNULL,
+                **kwargs,
+            )
+        )
+
     def submit_gov_proposal(self, proposal, **kwargs):
         default_kwargs = self.get_default_kwargs()
         kwargs.setdefault("broadcast_mode", "sync")
@@ -1391,6 +1445,23 @@ class CosmosCLI:
                 "channel",
                 "connections",
                 connid,
+                **(default_kwargs | kwargs),
+            )
+        )
+
+    def ibc_query_channel(self, port_id, channel_id, **kwargs):
+        default_kwargs = {
+            "node": self.node_rpc,
+            "output": "json",
+        }
+        return json.loads(
+            self.raw(
+                "q",
+                "ibc",
+                "channel",
+                "end",
+                port_id,
+                channel_id,
                 **(default_kwargs | kwargs),
             )
         )
@@ -1687,6 +1758,24 @@ class CosmosCLI:
             rsp = self.event_query_tx_for(rsp["txhash"])
         return rsp
 
+    def store_blocklist(self, data, **kwargs):
+        kwargs.setdefault("gas_prices", DEFAULT_GAS_PRICE)
+        kwargs.setdefault("gas", DEFAULT_GAS)
+        rsp = json.loads(
+            self.raw(
+                "tx",
+                "cronos",
+                "store-block-list",
+                data,
+                "-y",
+                home=self.data_dir,
+                **kwargs,
+            )
+        )
+        if rsp["code"] == 0:
+            rsp = self.event_query_tx_for(rsp["txhash"])
+        return rsp
+
     def rollback(self):
         self.raw("rollback", home=self.data_dir)
 
@@ -1795,7 +1884,6 @@ class CosmosCLI:
                 "event-query-tx-for",
                 hash,
                 home=self.data_dir,
-                stderr=subprocess.DEVNULL,
             )
         )
 
@@ -1853,10 +1941,13 @@ class CosmosCLI:
             rsp = self.event_query_tx_for(rsp["txhash"])
         return rsp
 
-    def keygen(self, **kwargs):
+    def e2ee_keygen(self, **kwargs):
         return self.raw("e2ee", "keygen", home=self.data_dir, **kwargs).strip().decode()
 
-    def encrypt(self, input, *recipients, **kwargs):
+    def e2ee_pubkey(self, **kwargs):
+        return self.raw("e2ee", "pubkey", home=self.data_dir, **kwargs).strip().decode()
+
+    def e2ee_encrypt(self, input, *recipients, **kwargs):
         return (
             self.raw(
                 "e2ee",
@@ -1870,7 +1961,7 @@ class CosmosCLI:
             .decode()
         )
 
-    def decrypt(self, input, identity="e2ee-identity", **kwargs):
+    def e2ee_decrypt(self, input, identity="e2ee-identity", **kwargs):
         return (
             self.raw(
                 "e2ee",
@@ -1878,6 +1969,19 @@ class CosmosCLI:
                 input,
                 home=self.data_dir,
                 identity=identity,
+                **kwargs,
+            )
+            .strip()
+            .decode()
+        )
+
+    def e2ee_encrypt_to_validators(self, input, **kwargs):
+        return (
+            self.raw(
+                "e2ee",
+                "encrypt-to-validators",
+                input,
+                home=self.data_dir,
                 **kwargs,
             )
             .strip()

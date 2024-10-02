@@ -2,6 +2,24 @@
 
 ## UNRELEASED
 
+### Improvements
+
+* [#1592](https://github.com/crypto-org-chain/cronos/pull/1592) Change the default parallelism of the block-stm to minimum between GOMAXPROCS and NumCPU
+* [#1600](https://github.com/crypto-org-chain/cronos/pull/1600) Update ethermint to avoid unnecessary block result in header related api call.
+* [#1606](https://github.com/crypto-org-chain/cronos/pull/1606) Fix pebbledb support.
+* [#1610](https://github.com/crypto-org-chain/cronos/pull/1610) Sync e2ee module with v1.3.x branch.
+* [#1612](https://github.com/crypto-org-chain/cronos/pull/1612) Support ibc channel upgrade related methods.
+* [#1614](https://github.com/crypto-org-chain/cronos/pull/1614) Bump cosmos-sdk to v0.50.10.
+
+### Bug Fixes
+
+* [#1609](https://github.com/crypto-org-chain/cronos/pull/1609) Fix query address-by-acc-num by account_id instead of id.
+* [#1611](https://github.com/crypto-org-chain/cronos/pull/1611) Fix multisig account failed on threshold encode after send tx.
+
+*Sep 13, 2024*
+
+## v1.4.0-rc0
+
 ### State Machine Breaking
 
 * [#1377](https://github.com/crypto-org-chain/cronos/pull/1377) Upgrade sdk to 0.50, and integrate block-stm parallel tx execution.
@@ -11,6 +29,7 @@
 * [#1519](https://github.com/crypto-org-chain/cronos/pull/1519) Upgrade ibc-go to 8.3 and remove icaauth module.
 * [#1518](https://github.com/crypto-org-chain/cronos/pull/1518) Keep versiondb/memiavl compatible with upstream sdk, stop supporting other streaming service.
 * [#1541](https://github.com/crypto-org-chain/cronos/pull/1541) Disable MsgCreatePermanentLockedAccount and MsgCreatePeriodicVestingAccount messages.
+* [#1552](https://github.com/crypto-org-chain/cronos/pull/1552) Avoid unnecessary GetAccount in ante handlers.
 
 ### Improvements
 
@@ -29,11 +48,18 @@
 * (block-stm) [#1515](https://github.com/crypto-org-chain/cronos/pull/1515) Improve performance by cache signature verification result between incarnations of same tx.
 * (store) [#1526](https://github.com/crypto-org-chain/cronos/pull/1526) Cache index/filters in rocksdb application.db to reduce ram usage.
 * (store)[#1529](https://github.com/crypto-org-chain/cronos/pull/1529) Enable pinL0FilterAndIndexBlocksInCache.
+* (store)[#1547](https://github.com/crypto-org-chain/cronos/pull/1547) Disable memiavl cache if block-stm is enabled.
+* (app)[#1564](https://github.com/crypto-org-chain/cronos/pull/1564) Fix mempool data race.
+* [#1568](https://github.com/crypto-org-chain/cronos/pull/1568) Update cometbft to 0.38.12.
+* [#1570](https://github.com/crypto-org-chain/cronos/pull/1570) Integrate pre-estimate block-stm option to improve worst case performance.
+* [#1572](https://github.com/crypto-org-chain/cronos/pull/1572) Allow disable sdk mempool by setting mempool.max-txs to `-1`.
 
 ### Bug Fixes
 
 * [#1520](https://github.com/crypto-org-chain/cronos/pull/1520) Avoid invalid chain id for signer error when rpc call before chain id set in BeginBlock.
 * [#1539](https://github.com/crypto-org-chain/cronos/pull/1539) Fix go-block-stm bug that causes app hash mismatch.
+* [#1560](https://github.com/crypto-org-chain/cronos/pull/1560) Update queries contract addresses by native denom from a query in contract_by_denom.
+* [#1569](https://github.com/crypto-org-chain/cronos/pull/1569) Update ethermint to fix of crash on chainID and mismatch tx hash in newHeads.
 
 *Jun 18, 2024*
 

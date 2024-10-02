@@ -309,7 +309,7 @@ def test_local_statesync(cronos, tmp_path_factory):
     cronos.supervisorctl("stop", "cronos_777-1-node0")
     tarball = cli0.data_dir / "snapshot.tar.gz"
     height = int(sync_info["latest_block_height"])
-    # round down to multplies of memiavl.snapshot-interval
+    # round down to multiples of memiavl.snapshot-interval
     height -= height % 5
 
     if height not in set(item.height for item in cli0.list_snapshot()):
@@ -974,3 +974,14 @@ def test_block_stm_delete(cronos):
         res = w3.eth.wait_for_transaction_receipt(txhash)
         assert res.status == 1
     w3_wait_for_block(w3, w3.eth.block_number + 3, timeout=30)
+
+
+def test_multi_acc(cronos):
+    cli = cronos.cosmos_cli()
+    cli.make_multisig("multitest1", "signer1", "signer2")
+    multi_addr = cli.address("multitest1")
+    signer1 = cli.address("signer1")
+    cli.transfer(signer1, multi_addr, "1basetcro")
+    acc = cli.account(multi_addr)
+    res = cli.account_by_num(acc["account"]["value"]["base_account"]["account_number"])
+    assert res["account_address"] == multi_addr

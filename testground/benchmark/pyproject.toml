@@ -14,19 +14,21 @@ tomlkit = "^0"
 web3 = "^6"
 hexbytes = "^0"
 bech32 = "^1"
-fire = "^0"
 requests = "^2.32"
+click = "^8.1.7"
+ujson = "^5.10.0"
+jsonmerge = "^1.9.2"
 
-[tool.poetry.dev-dependencies]
+[tool.poetry.group.dev.dependencies]
 pytest = "^8.2"
+pytest-github-actions-annotate-failures = "^0.2.0"
 
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
 
 [tool.poetry.scripts]
-testground-testcase = "benchmark.main:main"
-stateless-testcase = "benchmark.stateless:main"
+stateless-testcase = "benchmark.stateless:cli"
 
 [tool.black]
 line-length = 88

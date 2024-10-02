@@ -9,6 +9,7 @@ let
           multitail2 = [ "setuptools" ];
           docker = [ "hatchling" "hatch-vcs" ];
           pyunormalize = [ "setuptools" ];
+          pytest-github-actions-annotate-failures = [ "setuptools" ];
         };
       in
       lib.mapAttrs
@@ -40,6 +41,6 @@ let
 
 in
 {
-  testground-testcase = final.callPackage benchmark { };
-  testground-testcase-env = final.callPackage benchmark-env { };
+  benchmark-testcase = final.callPackage benchmark { };
+  benchmark-testcase-env = final.callPackage benchmark-env { };
 }

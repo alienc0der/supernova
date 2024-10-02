@@ -42,6 +42,7 @@
           enable: true,
           'zero-copy': true,
           'snapshot-interval': 5,
+          'cache-size': 0,
         },
         versiondb: {
           enable: true,
@@ -57,6 +58,12 @@
       mnemonic: '${VALIDATOR2_MNEMONIC}',
       client_config: {
         'broadcast-mode': 'sync',
+      },
+      config: {
+        db_backend: 'pebbledb',
+      },
+      'app-config': {
+        'app-db-backend': 'pebbledb',
       },
     }],
     accounts: [{

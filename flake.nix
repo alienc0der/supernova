@@ -41,6 +41,10 @@
           };
           apps = {
             supernovad = mkApp packages.supernovad;
+            stateless-testcase = {
+              type = "app";
+              program = "${pkgs.benchmark-testcase}/bin/stateless-testcase";
+            };
           };
           defaultPackage = packages.supernovad;
           defaultApp = apps.supernovad;
@@ -75,6 +79,7 @@
           go = super.go_1_22;
           test-env = final.callPackage ./nix/testenv.nix { };
           cronos-matrix = final.callPackage ./nix/cronos-matrix.nix {
+            inherit rev;
             bundle-exe = final.pkgsBuildBuild.callPackage nix-bundle-exe { };
           };
         })

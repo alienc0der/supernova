@@ -1,54 +1,33 @@
+import itertools
 import json
 import tempfile
 from pathlib import Path
 from typing import List
 
-from .cli import ChainCommand
-from .context import Context
-from .network import get_data_ip
-from .topology import connect_all
-from .types import GenesisAccount, PeerPacket
-from .utils import patch_json, patch_toml
+import jsonmerge
+from pydantic.json import pydantic_encoder
 
-VAL_ACCOUNT = "validator"
-VAL_INITIAL_AMOUNT = "100000000000000000000basecro"
-VAL_STAKED_AMOUNT = "10000000000000000000basecro"
-ACC_INITIAL_AMOUNT = "100000000000000000000000basecro"
-MEMPOOL_SIZE = 50000
+from . import erc20
+from .cli import ChainCommand
+from .types import Balance, GenesisAccount, PeerPacket
+from .utils import (
+    bech32_to_eth,
+    eth_to_bech32,
+    gen_account,
+    merge_genesis,
+    patch_genesis,
+    patch_toml,
+)
+
 DEFAULT_DENOM = "basecro"
+VAL_ACCOUNT = "validator"
+VAL_INITIAL_AMOUNT = Balance(amount="100000000000000000000", denom=DEFAULT_DENOM)
+VAL_STAKED_AMOUNT = Balance(amount="10000000000000000000", denom=DEFAULT_DENOM)
+ACC_INITIAL_AMOUNT = Balance(amount="10000000000000000000000000", denom=DEFAULT_DENOM)
+MEMPOOL_SIZE = 10000
 VALIDATOR_GROUP = "validators"
 FULLNODE_GROUP = "fullnodes"
 CONTAINER_CRONOSD_PATH = "/bin/cronosd"
-
-
-def bootstrap(ctx: Context, cli) -> PeerPacket:
-    home = Path.home() / ".cronos"
-    peer = init_node(
-        cli,
-        home,
-        get_data_ip(ctx.params),
-        ctx.params.chain_id,
-        ctx.params.test_group_id,
-        ctx.group_seq,
-    )
-
-    data = ctx.sync.publish_subscribe_simple(
-        "peers", peer.dict(), ctx.params.test_instance_count
-    )
-    peers: List[PeerPacket] = [PeerPacket.model_validate(item) for item in data]
-
-    if ctx.is_fullnode_leader:
-        # prepare genesis file and publish
-        genesis = gen_genesis(cli, home, peers)
-        ctx.sync.publish("genesis", genesis)
-    else:
-        genesis = ctx.sync.subscribe_simple("genesis", 1)[0]
-        (home / "config" / "genesis.json").write_text(json.dumps(genesis))
-        cli("genesis", "validate", home=home)
-
-    p2p_peers = connect_all(peer, peers)
-    patch_configs(home, ctx.params.test_group_id, p2p_peers, "block-stm")
-    return peer
 
 
 def init_node(
@@ -58,6 +37,8 @@ def init_node(
     chain_id: str,
     group: str,
     group_seq: int,
+    global_seq: int,
+    num_accounts: int = 1,
 ) -> PeerPacket:
     default_kwargs = {
         "home": home,
@@ -70,13 +51,27 @@ def init_node(
         default_denom=DEFAULT_DENOM,
         **default_kwargs,
     )
-    cli("keys", "add", VAL_ACCOUNT, **default_kwargs)
-    cli("keys", "add", "account", **default_kwargs)
-    validator_addr = cli("keys", "show", VAL_ACCOUNT, "--address", **default_kwargs)
-    account_addr = cli("keys", "show", "account", "--address", **default_kwargs)
+
+    val_acct = gen_account(global_seq, 0)
+    cli(
+        "keys",
+        "unsafe-import-eth-key",
+        VAL_ACCOUNT,
+        val_acct.key.hex(),
+        stdin=b"00000000\n",
+        **default_kwargs,
+    )
     accounts = [
-        GenesisAccount(address=validator_addr, balance=VAL_INITIAL_AMOUNT),
-        GenesisAccount(address=account_addr, balance=ACC_INITIAL_AMOUNT),
+        GenesisAccount(
+            address=eth_to_bech32(val_acct.address),
+            coins=[VAL_INITIAL_AMOUNT],
+        ),
+    ] + [
+        GenesisAccount(
+            address=eth_to_bech32(gen_account(global_seq, i + 1).address),
+            coins=[ACC_INITIAL_AMOUNT],
+        )
+        for i in range(num_accounts)
     ]
 
     node_id = cli("comet", "show-node-id", **default_kwargs)
@@ -94,48 +89,86 @@ def init_node(
     return peer
 
 
-def gen_genesis(cli: ChainCommand, leader_home: Path, peers: List[PeerPacket]):
-    for peer in peers:
-        for account in peer.accounts:
-            cli(
-                "genesis",
-                "add-genesis-account",
-                account.address,
-                account.balance,
-                home=leader_home,
-            )
+def gen_genesis(
+    cli: ChainCommand, leader_home: Path, peers: List[PeerPacket], genesis_patch: dict
+):
+    accounts = list(itertools.chain(*(peer.accounts for peer in peers)))
+    print("adding genesis accounts", len(accounts))
+
+    # skip the validator account of the first node, because we use that node's home,
+    # and it's already added
+    accounts = accounts[1:]
+
+    with tempfile.NamedTemporaryFile() as fp:
+        fp.write(json.dumps(accounts, default=pydantic_encoder).encode())
+        fp.flush()
+        cli(
+            "genesis",
+            "bulk-add-genesis-account",
+            fp.name,
+            home=leader_home,
+        )
     collect_gen_tx(cli, peers, home=leader_home)
     cli("genesis", "validate", home=leader_home)
-    return patch_json(
+    print("genesis validated")
+
+    evm_accounts, auth_accounts = erc20.genesis_accounts(
+        erc20.CONTRACT_ADDRESS, [bech32_to_eth(acct.address) for acct in accounts]
+    )
+    return patch_genesis(
         leader_home / "config" / "genesis.json",
-        {
-            "consensus.params.block.max_gas": "81500000",
-            "app_state.evm.params.evm_denom": "basecro",
-            "app_state.feemarket.params.no_base_fee": True,
-        },
+        merge_genesis(
+            {
+                "consensus": {"params": {"block": {"max_gas": "163000000"}}},
+                "app_state": {
+                    "evm": {
+                        "params": {"evm_denom": DEFAULT_DENOM},
+                        "accounts": evm_accounts,
+                    },
+                    "auth": {"accounts": auth_accounts},
+                    "feemarket": {"params": {"no_base_fee": True}},
+                },
+            },
+            genesis_patch,
+        ),
     )
 
 
-def patch_configs(home: Path, group: str, peers: str, block_executor: str):
-    # update persistent_peers and other configs in config.toml
-    config_patch = {
-        "p2p.persistent_peers": peers,
-        "p2p.addr_book_strict": False,
-        "mempool.recheck": "false",
-        "mempool.size": MEMPOOL_SIZE,
-        "consensus.timeout_commit": "2s",
+def patch_configs(home: Path, peers: str, config_patch: dict, app_patch: dict):
+    default_config_patch = {
+        "db_backend": "rocksdb",
+        "p2p": {"addr_book_strict": False},
+        "mempool": {
+            "recheck": False,
+            "size": MEMPOOL_SIZE,
+        },
+        "consensus": {"timeout_commit": "1s"},
+        "tx_index": {"indexer": "null"},
     }
-    if group == VALIDATOR_GROUP:
-        config_patch["tx_index.indexer"] = "null"
-
-    app_patch = {
+    default_app_patch = {
         "minimum-gas-prices": "0basecro",
         "index-events": ["ethereum_tx.ethereumTxHash"],
-        "memiavl.enable": True,
-        "mempool.max-txs": MEMPOOL_SIZE,
-        "evm.block-executor": block_executor,
+        "memiavl": {
+            "enable": True,
+            "cache-size": 0,
+        },
+        "mempool": {"max-txs": MEMPOOL_SIZE},
+        "evm": {
+            "block-executor": "block-stm",  # or "sequential"
+            "block-stm-workers": 0,
+            "block-stm-pre-estimate": True,
+        },
+        "json-rpc": {"enable-indexer": True},
     }
-
+    # update persistent_peers and other configs in config.toml
+    config_patch = jsonmerge.merge(
+        default_config_patch,
+        jsonmerge.merge(
+            config_patch,
+            {"p2p": {"persistent_peers": peers}},
+        ),
+    )
+    app_patch = jsonmerge.merge(default_app_patch, app_patch)
     patch_toml(home / "config" / "config.toml", config_patch)
     patch_toml(home / "config" / "app.toml", app_patch)
 
@@ -145,7 +178,7 @@ def gentx(cli, **kwargs):
         "genesis",
         "add-genesis-account",
         VAL_ACCOUNT,
-        VAL_INITIAL_AMOUNT,
+        str(VAL_INITIAL_AMOUNT),
         **kwargs,
     )
     with tempfile.TemporaryDirectory() as tmp:
