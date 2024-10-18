@@ -4,6 +4,7 @@ import os
 import shutil
 import socket
 import subprocess
+import sys
 import tarfile
 import tempfile
 import time
@@ -56,6 +57,7 @@ def validate_json(ctx, param, value):
 @click.option("--fullnodes", default=7)
 @click.option("--num-accounts", default=10)
 @click.option("--num-txs", default=1000)
+@click.option("--num-idle", default=20)
 @click.option("--tx-type", default="simple-transfer")
 @click.option("--config-patch", default="{}", callback=validate_json)
 @click.option("--app-patch", default="{}", callback=validate_json)
@@ -78,6 +80,7 @@ def _gen(
     fullnodes: int = 7,
     num_accounts: int = 10,
     num_txs: int = 1000,
+    num_idle: int = 20,
     tx_type: str = "simple-transfer",
     validator_generate_load: bool = True,
     config_patch: dict = None,
@@ -140,6 +143,7 @@ def _gen(
         "fullnodes": fullnodes,
         "num_accounts": num_accounts,
         "num_txs": num_txs,
+        "num_idle": num_idle,
         "tx_type": tx_type,
         "validator-generate-load": validator_generate_load,
     }
@@ -172,7 +176,7 @@ ADD ./out {dst}
 @click.option("--outdir", default="/outputs")
 @click.option("--datadir", default="/data")
 @click.option("--cronosd", default=CONTAINER_CRONOSD_PATH)
-@click.option("--global-seq", default=None)
+@click.option("--global-seq", default=None, type=int)
 def run(outdir: str, datadir: str, cronosd, global_seq):
     datadir = Path(datadir)
     cfg = json.loads((datadir / "config.json").read_text())
@@ -191,14 +195,19 @@ def run(outdir: str, datadir: str, cronosd, global_seq):
     finally:
         # collect outputs
         output = Path("/data.tar.bz2")
-        with tarfile.open(output, "x:bz2") as tar:
-            tar.add(home, arcname="data", filter=output_filter(group, group_seq))
-        outdir = Path(outdir)
-        if outdir.exists():
-            assert outdir.is_dir()
-            filename = outdir / f"{group}_{group_seq}.tar.bz2"
-            filename.unlink(missing_ok=True)
-            shutil.copy(output, filename)
+        try:
+            with tarfile.open(output, "x:bz2") as tar:
+                tar.add(home, arcname="data", filter=output_filter(group, group_seq))
+        except OSError:
+            # ignore if the file is not writable when running in bare metal
+            pass
+        else:
+            outdir = Path(outdir)
+            if outdir.exists():
+                assert outdir.is_dir()
+                filename = outdir / f"{group}_{group_seq}.tar.bz2"
+                filename.unlink(missing_ok=True)
+                shutil.copy(output, filename)
 
 
 @cli.command()
@@ -216,6 +225,22 @@ def gen_txs(**kwargs):
 @click.argument("options", callback=validate_json)
 def generic_gen_txs(options: dict):
     return _gen_txs(**options)
+
+
+@cli.command()
+@click.option("--datadir", default="/data", type=Path)
+@click.option("--global-seq", default=0)
+def generate_load(datadir: Path, global_seq: int):
+    """
+    manually generate load to an existing node
+    """
+    cfg = json.loads((datadir / "config.json").read_text())
+    txs = prepare_txs(cfg, datadir, global_seq)
+    asyncio.run(transaction.send(txs))
+    print("sent", len(txs), "txs")
+    print("wait for 20 idle blocks")
+    detect_idle_halted(cfg["num_idle"], 20)
+    dump_block_stats(sys.stdout)
 
 
 def _gen_txs(
@@ -245,14 +270,7 @@ def do_run(
     datadir: Path, home: Path, cronosd: str, group: str, global_seq: int, cfg: dict
 ):
     if group == FULLNODE_GROUP or cfg.get("validator-generate-load", True):
-        txs = transaction.load(datadir, global_seq)
-        if txs:
-            print("loaded", len(txs), "txs")
-        else:
-            print("generating", cfg["num_accounts"] * cfg["num_txs"], "txs")
-            txs = transaction.gen(
-                global_seq, cfg["num_accounts"], cfg["num_txs"], cfg["tx_type"]
-            )
+        txs = prepare_txs(cfg, datadir, global_seq)
     else:
         txs = []
 
@@ -277,7 +295,7 @@ def do_run(
         print("sent", len(txs), "txs")
 
     # node quit when the chain is idle or halted for a while
-    detect_idle_halted(20, 20)
+    detect_idle_halted(cfg["num_idle"], 20)
 
     with (home / "block_stats.log").open("w") as logfile:
         dump_block_stats(logfile)
@@ -410,6 +428,18 @@ def wait_for_peers(home: Path):
         host = parts[1].split(":", 1)[0]
         print("wait for peer to be ready:", host)
         wait_for_port(ECHO_SERVER_PORT, host=host, timeout=2400)
+
+
+def prepare_txs(cfg, datadir, global_seq):
+    txs = transaction.load(datadir, global_seq)
+    if txs:
+        print("loaded", len(txs), "txs")
+    else:
+        print("generating", cfg["num_accounts"] * cfg["num_txs"], "txs")
+        txs = transaction.gen(
+            global_seq, cfg["num_accounts"], cfg["num_txs"], cfg["tx_type"]
+        )
+    return txs
 
 
 if __name__ == "__main__":

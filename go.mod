@@ -57,7 +57,7 @@ require (
 	cloud.google.com/go/storage v1.41.0 // indirect
 	cosmossdk.io/collections v0.4.0 // indirect
 	cosmossdk.io/depinject v1.0.0 // indirect
-	cosmossdk.io/x/tx v0.13.5 // indirect
+	cosmossdk.io/x/tx v0.13.6-0.20241003112805-ff8789a02871 // indirect
 	filippo.io/edwards25519 v1.1.0 // indirect
 	github.com/99designs/go-keychain v0.0.0-20191008050251-8e49817e8af4 // indirect
 	github.com/DataDog/datadog-go v4.8.3+incompatible // indirect
@@ -254,9 +254,9 @@ require (
 
 // release/v0.50.x
 replace (
-	cosmossdk.io/store => github.com/crypto-org-chain/cosmos-sdk/store v0.0.0-20240930015419-f4ea363b3fdf
-	cosmossdk.io/x/tx => github.com/crypto-org-chain/cosmos-sdk/x/tx v0.0.0-20240930015419-f4ea363b3fdf
-	github.com/cosmos/cosmos-sdk => github.com/crypto-org-chain/cosmos-sdk v0.50.6-0.20240930015419-f4ea363b3fdf
+	cosmossdk.io/store => github.com/crypto-org-chain/cosmos-sdk/store v0.0.0-20241018012743-d78d66e74712
+	cosmossdk.io/x/tx => github.com/crypto-org-chain/cosmos-sdk/x/tx v0.0.0-20241018012743-d78d66e74712
+	github.com/cosmos/cosmos-sdk => github.com/crypto-org-chain/cosmos-sdk v0.50.6-0.20241018012743-d78d66e74712
 )
 
 replace (
@@ -268,14 +268,12 @@ replace (
 replace (
 	// Use cosmos keyring
 	github.com/99designs/keyring => github.com/cosmos/keyring v1.2.0
-	// FIXME: address the replacement when bump v1.2.0 to that triggers app hash mismatch in upgrade test
-	github.com/cosmos/iavl => github.com/cosmos/iavl v1.1.2
 	// dgrijalva/jwt-go is deprecated and doesn't receive security updates.
 	// TODO: remove it: https://github.com/cosmos/cosmos-sdk/issues/13134
 	github.com/dgrijalva/jwt-go => github.com/golang-jwt/jwt/v4 v4.4.2
 	github.com/ethereum/go-ethereum => github.com/crypto-org-chain/go-ethereum v1.10.20-0.20240926023215-d2275b4afb9a
 	// develop
-	github.com/evmos/ethermint => github.com/crypto-org-chain/ethermint v0.6.1-0.20241004074623-853e1e5b3475
+	github.com/evmos/ethermint => github.com/crypto-org-chain/ethermint v0.6.1-0.20241017130935-816389c76eac
 	// Fix upstream GHSA-h395-qcrw-5vmq and GHSA-3vp4-m3rf-835h vulnerabilities.
 	// TODO Remove it: https://github.com/cosmos/cosmos-sdk/issues/10409
 	github.com/gin-gonic/gin => github.com/gin-gonic/gin v1.9.0

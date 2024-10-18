@@ -10,6 +10,7 @@ from web3.datastructures import AttributeDict
 from .ibc_utils import (
     Status,
     funds_ica,
+    gen_query_balance_packet,
     gen_send_msg,
     get_next_channel,
     prepare_network,
@@ -252,7 +253,6 @@ def test_sc_call(ibc, order):
         signer=signer,
         contract_addr=contract_addr,
     )
-    balance = funds_ica(cli_host, ica_address, signer=signer)
     assert tcontract.caller.getAccount() == addr
     assert (
         tcontract.functions.callQueryAccount(connid, contract_addr).call()
@@ -306,10 +306,32 @@ def test_sc_call(ibc, order):
         expected_seq,
         contract.events.SubmitMsgsResult,
         channel_id,
+        need_wait=False,
         signer=signer,
     )
     submit_msgs_ro(tcontract.functions.delegateSubmitMsgs, str)
     submit_msgs_ro(tcontract.functions.staticSubmitMsgs, str)
+    last_seq = tcontract.caller.getLastSeq()
+    wait_for_status_change(tcontract, channel_id, last_seq)
+    status = tcontract.caller.getStatus(channel_id, last_seq)
+    assert expected_seq == last_seq
+    assert status == Status.FAIL
+    wait_for_packet_log(start, packet_event, channel_id, last_seq, status)
+
+    expected_seq += 1
+    balance = funds_ica(cli_host, ica_address, signer=signer)
+    start = w3.eth.get_block_number()
+    str, diff = submit_msgs(
+        ibc,
+        tcontract.functions.callSubmitMsgs,
+        data,
+        ica_address,
+        False,
+        expected_seq,
+        contract.events.SubmitMsgsResult,
+        channel_id,
+        signer=signer,
+    )
     last_seq = tcontract.caller.getLastSeq()
     wait_for_status_change(tcontract, channel_id, last_seq)
     status = tcontract.caller.getStatus(channel_id, last_seq)
@@ -448,3 +470,11 @@ def test_sc_call(ibc, order):
     wait_for_packet_log(start, packet_event, channel_id2, last_seq, status)
     balance -= diff
     assert cli_host.balance(ica_address, denom=denom) == balance
+
+    packet = gen_query_balance_packet(cli_controller, ica_address)
+    str = base64.b64decode(packet["data"])
+    tx = tcontract.functions.callSubmitMsgs(
+        connid, channel_id, str, no_timeout
+    ).build_transaction(data)
+    receipt = send_transaction(w3, tx, KEYS[signer])
+    assert receipt.status == 1

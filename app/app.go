@@ -956,7 +956,7 @@ func New(
 
 	// RegisterUpgradeHandlers is used for registering any on-chain upgrades.
 	// Make sure it's called after `app.mm` and `app.configurator` are set.
-	app.RegisterUpgradeHandlers(app.appCodec, app.IBCKeeper.ClientKeeper)
+	app.RegisterUpgradeHandlers(app.appCodec)
 
 	// add test gRPC service for testing gRPC queries in isolation
 	// testdata.RegisterQueryServer(app.GRPCQueryRouter(), testdata.QueryImpl{})
@@ -1108,7 +1108,7 @@ func (app *App) setAnteHandler(txConfig client.TxConfig, maxGasWanted uint64, bl
 
 		blockedMap[addr.String()] = struct{}{}
 	}
-	blockAddressDecorator := NewBlockAddressesDecorator(blockedMap)
+	blockAddressDecorator := NewBlockAddressesDecorator(blockedMap, app.CronosKeeper.GetParams)
 	options := evmante.HandlerOptions{
 		AccountKeeper:          app.AccountKeeper,
 		BankKeeper:             app.BankKeeper,
@@ -1456,7 +1456,12 @@ func (app *App) Close() error {
 	}
 
 	err := stderrors.Join(errs...)
-	app.Logger().Info("Application gracefully shutdown", "error", err)
+	msg := "Application gracefully shutdown"
+	if err == nil {
+		app.Logger().Info(msg)
+	} else {
+		app.Logger().Error(msg, "error", err)
+	}
 	return err
 }
 

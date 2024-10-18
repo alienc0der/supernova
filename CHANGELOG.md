@@ -2,6 +2,26 @@
 
 ## UNRELEASED
 
+### Bug Fixes
+
+* (testground)[1649](https://github.com/crypto-org-chain/cronos/pull/1649) Fix running single validator benchmark locally.
+* (cli)[#1647](https://github.com/crypto-org-chain/cronos/pull/1647) Fix node can't shutdown by signal.
+
+### Improvements
+
+* [#1645](https://github.com/crypto-org-chain/cronos/pull/1645) Gen test tx in parallel even in single node.
+* (testground)[#1644](https://github.com/crypto-org-chain/cronos/pull/1644) load generator retry with backoff on error.
+* [#1648](https://github.com/crypto-org-chain/cronos/pull/1648) Add abort OE in PrepareProposal.
+
+*Oct 14, 2024*
+
+## v1.4.0-rc1
+
+### State Machine Breaking
+
+* (memiavl)[#1618](https://github.com/crypto-org-chain/cronos/pull/1618) memiavl change initial version logic to be
+  compatible with iavl 1.2.0.
+
 ### Improvements
 
 * [#1592](https://github.com/crypto-org-chain/cronos/pull/1592) Change the default parallelism of the block-stm to minimum between GOMAXPROCS and NumCPU
@@ -10,13 +30,17 @@
 * [#1610](https://github.com/crypto-org-chain/cronos/pull/1610) Sync e2ee module with v1.3.x branch.
 * [#1612](https://github.com/crypto-org-chain/cronos/pull/1612) Support ibc channel upgrade related methods.
 * [#1614](https://github.com/crypto-org-chain/cronos/pull/1614) Bump cosmos-sdk to v0.50.10.
+* [#1613](https://github.com/crypto-org-chain/cronos/pull/1613) Check admin sender for MsgStoreBlockList in check tx.
 
 ### Bug Fixes
 
 * [#1609](https://github.com/crypto-org-chain/cronos/pull/1609) Fix query address-by-acc-num by account_id instead of id.
 * [#1611](https://github.com/crypto-org-chain/cronos/pull/1611) Fix multisig account failed on threshold encode after send tx.
 * [#1617](https://github.com/crypto-org-chain/cronos/pull/1617) Fix unsuppored sign mode SIGN_MODE_TEXTUAL for bank transfer.
-* [#1621](https://github.com/crypto-org-chain/cronos/pull/1621) Update ethermint to the fix of broken opBlockhash and tx validation.
+* [#1621](https://github.com/crypto-org-chain/cronos/pull/1621), [1630](https://github.com/crypto-org-chain/cronos/pull/1630) Update ethermint to the fix of broken opBlockhash and tx validation.
+* [#1623](https://github.com/crypto-org-chain/cronos/pull/1623) Ensure expedited related gov params pass the basic validation.
+* [#1633](https://github.com/crypto-org-chain/cronos/pull/1633) Align acknowledgement with underlying_app_success when ack packet does not succeed.
+* [#1638](https://github.com/crypto-org-chain/cronos/pull/1638) sync x/tx bug fixes.
 
 *Sep 13, 2024*
 
