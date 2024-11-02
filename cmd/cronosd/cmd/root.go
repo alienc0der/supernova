@@ -84,9 +84,10 @@ func NewRootCmd() *cobra.Command {
 		panic(err)
 	}
 
+	// EXTENSION-CHAIN
 	rootCmd := &cobra.Command{
 		Use:   app.Name + "d",
-		Short: "Cronos Daemon",
+		Short: "Supernova Daemon",
 		PersistentPreRunE: func(cmd *cobra.Command, _ []string) error {
 			// set the default command outputs
 			cmd.SetOut(cmd.OutOrStdout())

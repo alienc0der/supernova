@@ -14,6 +14,7 @@ from .ibc_utils import (
     ibc_multi_transfer,
     ibc_transfer,
     prepare_network,
+    rly_transfer,
 )
 from .utils import (
     ADDRS,
