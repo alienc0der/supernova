@@ -1,8 +1,6 @@
 module github.com/crypto-org-chain/cronos/v2
 
-go 1.22.7
-
-toolchain go1.23.1
+go 1.23.1
 
 require (
 	cosmossdk.io/api v0.7.6
@@ -19,7 +17,7 @@ require (
 	cosmossdk.io/x/upgrade v0.1.4
 	filippo.io/age v1.1.1
 	github.com/99designs/keyring v1.2.2
-	github.com/cometbft/cometbft v0.38.13
+	github.com/cometbft/cometbft v0.38.15
 	github.com/cosmos/cosmos-db v1.0.3-0.20240408151834-e75f6e4b28d8
 	github.com/cosmos/cosmos-sdk v0.50.9
 	github.com/cosmos/gogoproto v1.7.0
@@ -35,7 +33,7 @@ require (
 	github.com/gorilla/mux v1.8.1
 	github.com/grpc-ecosystem/grpc-gateway v1.16.0
 	github.com/hashicorp/go-metrics v0.5.3
-	github.com/linxGnu/grocksdb v1.9.2
+	github.com/linxGnu/grocksdb v1.9.7
 	github.com/spf13/cast v1.6.0
 	github.com/spf13/cobra v1.8.1
 	github.com/spf13/pflag v1.0.5
@@ -44,7 +42,7 @@ require (
 	golang.org/x/crypto v0.28.0
 	google.golang.org/genproto/googleapis/api v0.0.0-20240814211410-ddb44dafa142
 	google.golang.org/grpc v1.67.1
-	google.golang.org/protobuf v1.34.2
+	google.golang.org/protobuf v1.35.1
 	gopkg.in/yaml.v2 v2.4.0
 )
 
@@ -86,7 +84,7 @@ require (
 	github.com/cockroachdb/redact v1.1.5 // indirect
 	github.com/cockroachdb/tokenbucket v0.0.0-20230807174530-cc333fc44b06 // indirect
 	github.com/coinbase/rosetta-sdk-go/types v1.0.0 // indirect
-	github.com/cometbft/cometbft-db v0.14.1 // indirect
+	github.com/cometbft/cometbft-db v0.15.0 // indirect
 	github.com/cosmos/btcutil v1.0.5 // indirect
 	github.com/cosmos/cosmos-proto v1.0.0-beta.5 // indirect
 	github.com/cosmos/go-bip39 v1.0.0 // indirect
@@ -103,10 +101,10 @@ require (
 	github.com/danieljoos/wincred v1.2.0 // indirect
 	github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc // indirect
 	github.com/deckarep/golang-set/v2 v2.1.0 // indirect
-	github.com/decred/dcrd/dcrec/secp256k1/v4 v4.2.0 // indirect
+	github.com/decred/dcrd/dcrec/secp256k1/v4 v4.3.0 // indirect
 	github.com/desertbit/timer v0.0.0-20180107155436-c41aec40b27f // indirect
-	github.com/dgraph-io/badger/v4 v4.2.0 // indirect
-	github.com/dgraph-io/ristretto v0.1.1 // indirect
+	github.com/dgraph-io/badger/v4 v4.3.0 // indirect
+	github.com/dgraph-io/ristretto v0.1.2-0.20240116140435-c67e07994f91 // indirect
 	github.com/dlclark/regexp2 v1.7.0 // indirect
 	github.com/dop251/goja v0.0.0-20230122112309-96b1610dd4f7 // indirect
 	github.com/dustin/go-humanize v1.0.1 // indirect
@@ -130,7 +128,6 @@ require (
 	github.com/gofrs/flock v0.8.1 // indirect
 	github.com/gogo/googleapis v1.4.1 // indirect
 	github.com/gogo/protobuf v1.3.2 // indirect
-	github.com/golang/glog v1.2.2 // indirect
 	github.com/golang/groupcache v0.0.0-20210331224755-41bb18bfe9da // indirect
 	github.com/golang/mock v1.6.0 // indirect
 	github.com/golang/snappy v0.0.5-0.20220116011046-fa5810519dcb // indirect
@@ -193,7 +190,7 @@ require (
 	github.com/pmezard/go-difflib v1.0.1-0.20181226105442-5d4384ee4fb2 // indirect
 	github.com/prometheus/client_golang v1.20.5 // indirect
 	github.com/prometheus/client_model v0.6.1 // indirect
-	github.com/prometheus/common v0.59.1 // indirect
+	github.com/prometheus/common v0.60.1 // indirect
 	github.com/prometheus/procfs v0.15.1 // indirect
 	github.com/rcrowley/go-metrics v0.0.0-20201227073835-cf1acfcdf475 // indirect
 	github.com/rogpeppe/go-internal v1.12.0 // indirect
@@ -233,8 +230,8 @@ require (
 	go.uber.org/multierr v1.11.0 // indirect
 	golang.org/x/exp v0.0.0-20240613232115-7f521ea00fb8 // indirect
 	golang.org/x/mod v0.18.0 // indirect
-	golang.org/x/net v0.29.0 // indirect
-	golang.org/x/oauth2 v0.22.0 // indirect
+	golang.org/x/net v0.30.0 // indirect
+	golang.org/x/oauth2 v0.23.0 // indirect
 	golang.org/x/sync v0.8.0 // indirect
 	golang.org/x/sys v0.26.0 // indirect
 	golang.org/x/term v0.25.0 // indirect
@@ -255,9 +252,9 @@ require (
 
 // release/v0.50.x
 replace (
-	cosmossdk.io/store => github.com/crypto-org-chain/cosmos-sdk/store v0.0.0-20241018012743-d78d66e74712
-	cosmossdk.io/x/tx => github.com/crypto-org-chain/cosmos-sdk/x/tx v0.0.0-20241018012743-d78d66e74712
-	github.com/cosmos/cosmos-sdk => github.com/crypto-org-chain/cosmos-sdk v0.50.6-0.20241101065553-a70c19a03a81
+	cosmossdk.io/store => github.com/crypto-org-chain/cosmos-sdk/store v0.0.0-20241114020021-3300cc8f3836
+	cosmossdk.io/x/tx => github.com/crypto-org-chain/cosmos-sdk/x/tx v0.0.0-20241114020021-3300cc8f3836
+	github.com/cosmos/cosmos-sdk => github.com/crypto-org-chain/cosmos-sdk v0.50.6-0.20241114020021-3300cc8f3836
 )
 
 replace (
@@ -270,13 +267,13 @@ replace (
 	// Use cosmos keyring
 	github.com/99designs/keyring => github.com/cosmos/keyring v1.2.0
 	// v0.38.x
-	github.com/cometbft/cometbft => github.com/crypto-org-chain/cometbft v0.0.0-20241101110921-cee5fa03c9ba
+	github.com/cometbft/cometbft => github.com/crypto-org-chain/cometbft v0.0.0-20241106091515-ce418f845d9a
 	// dgrijalva/jwt-go is deprecated and doesn't receive security updates.
 	// TODO: remove it: https://github.com/cosmos/cosmos-sdk/issues/13134
 	github.com/dgrijalva/jwt-go => github.com/golang-jwt/jwt/v4 v4.4.2
 	github.com/ethereum/go-ethereum => github.com/crypto-org-chain/go-ethereum v1.10.20-0.20240926023215-d2275b4afb9a
-	// develop
-	github.com/evmos/ethermint => github.com/crypto-org-chain/ethermint v0.6.1-0.20241101134753-e4d00df93541
+	// release/v1.4.x
+	github.com/evmos/ethermint => github.com/crypto-org-chain/ethermint v0.6.1-0.20241118003049-cd93407bcf05
 	// Fix upstream GHSA-h395-qcrw-5vmq and GHSA-3vp4-m3rf-835h vulnerabilities.
 	// TODO Remove it: https://github.com/cosmos/cosmos-sdk/issues/10409
 	github.com/gin-gonic/gin => github.com/gin-gonic/gin v1.9.0

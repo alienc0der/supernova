@@ -1,10 +1,11 @@
-{ lib
-, stdenv
-, callPackage
-, buildPackages
-, runCommand
-, bundle-exe
-, rev ? "dirty"
+{
+  lib,
+  stdenv,
+  callPackage,
+  buildPackages,
+  runCommand,
+  bundle-exe,
+  rev ? "dirty",
 }:
 let
   # make-tarball don't follow symbolic links to avoid duplicate file, the bundle should have no external references.

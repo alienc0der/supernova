@@ -1,13 +1,14 @@
-{ runCommand
-, windows
-, stdenv
-, rocksdb
-, bzip2
-, lz4
-, snappy
-, zstd
-, zlib
-, supernovad
+{ 
+  runCommand, 
+  windows,
+  stdenv,
+  rocksdb,
+  bzip2,
+  lz4,
+  snappy,
+  zstd,
+  zlib,
+  supernovad,
 }:
 runCommand "tarball-${supernovad.name}"
 {

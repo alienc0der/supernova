@@ -1,6 +1,32 @@
 # Changelog
 
-## UNRELEASED
+*Nov 18, 2024*
+
+## v1.4.0-rc5
+
+### State Machine Breaking
+
+* [#1697](https://github.com/crypto-org-chain/cronos/pull/1697) Check max-tx-gas-wanted only in CheckTx mode.
+
+*Nov 14, 2024*
+
+## v1.4.0-rc4
+
+### Bug Fixes
+
+* [#1679](https://github.com/crypto-org-chain/cronos/pull/1679) Include no trace detail on insufficient balance fix.
+* [#1685](https://github.com/crypto-org-chain/cronos/pull/1685) Add command to fix versiondb corrupted data.
+* [#1690](https://github.com/crypto-org-chain/cronos/pull/1690) Include balance and gasPrice fix of debug trace api and fix nil pointer panic with legacy tx format.
+
+### Improvements
+
+* [#1684](https://github.com/crypto-org-chain/cronos/pull/1684) versiondb NewKVStore accept string as store name.
+* [#1688](https://github.com/crypto-org-chain/cronos/pull/1688) Add Timestamp api to versiondb iterator.
+* [#1692](https://github.com/crypto-org-chain/cronos/pull/1692) Set iavl async pruning option.
+
+*Nov 6, 2024*
+
+## v1.4.0-rc3
 
 ### Bug Fixes
 
@@ -16,6 +42,7 @@
 * [#1660](https://github.com/crypto-org-chain/cronos/pull/1660) Support async check tx.
 * [#1667](https://github.com/crypto-org-chain/cronos/pull/1667) Add testnet benchmark command.
 * [#1669](https://github.com/crypto-org-chain/cronos/pull/1669) Add performance optimizations: a) async fireEvents, b) faster prepare proposal when using NopMempool, c) parallel check-tx
+* [#1676](https://github.com/crypto-org-chain/cronos/pull/1676) Update cometbft to 0.38.14 and rocksdb to 9.7.4.
 
 *Oct 24, 2024*
 
