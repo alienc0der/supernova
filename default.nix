@@ -12,25 +12,20 @@
   nativeByteOrder ? true, # nativeByteOrder mode will panic on big endian machines
 }:
 let
-  version = "v1.4.0";
-  pname = "cronosd";
-  tags = [
-    "ledger"
-    "netgo"
-    network
-    "rocksdb"
-    "grocksdb_no_link"
-    "pebbledb"
-    "objstore"
-  ] ++ lib.optionals nativeByteOrder [ "nativebyteorder" ];
+  version = "v0.0.2";
+  pname = "supernovad";
+  tags = [ "ledger" "netgo" network "rocksdb" "grocksdb_no_link" "pebbledb" "objstore" ] ++ lib.optionals nativeByteOrder [ "nativebyteorder" ];
   ldflags = lib.concatStringsSep "\n" ([
-    "-X github.com/cosmos/cosmos-sdk/version.Name=cronos"
+    "-X github.com/cosmos/cosmos-sdk/version.Name=supernova"
     "-X github.com/cosmos/cosmos-sdk/version.AppName=${pname}"
     "-X github.com/cosmos/cosmos-sdk/version.Version=${version}"
     "-X github.com/cosmos/cosmos-sdk/version.BuildTags=${lib.concatStringsSep "," tags}"
     "-X github.com/cosmos/cosmos-sdk/version.Commit=${rev}"
   ]);
   buildInputs = [ rocksdb ];
+  isWindows = stdenv.hostPlatform.isWindows;
+  isLinux = stdenv.hostPlatform.isLinux;
+  isDarwin = stdenv.isDarwin;
 in
 buildGoApplication rec {
   inherit
@@ -61,24 +56,39 @@ buildGoApplication rec {
   buildFlags = lib.optionalString coverage "-cover";
   CGO_ENABLED = "1";
   CGO_LDFLAGS = lib.optionalString (rocksdb != null) (
-    if static then
-      "-lrocksdb -pthread -lstdc++ -ldl -lzstd -lsnappy -llz4 -lbz2 -lz"
-    else if stdenv.hostPlatform.isWindows then
-      "-lrocksdb-shared"
-    else
-      "-lrocksdb -pthread -lstdc++ -ldl"
+    if static then "-lrocksdb -pthread -lstdc++ -ldl -lzstd -lsnappy -llz4 -lbz2 -lz"
+    else if isWindows then "-lrocksdb-shared"
+    else "-lrocksdb -pthread -lstdc++ -ldl"
   );
+  
+  postFixup = ''
+    # Rename the binary to supernovad if on Darwin
+    ${lib.optionalString (isDarwin) ''
+      mv $out/bin/cronosd $out/bin/supernovad
+    ''}
+    
+    # Adjust the install_name_tool command if on Darwin
+    ${lib.optionalString (isDarwin && rocksdb != null) ''
+      ${stdenv.cc.bintools.targetPrefix}install_name_tool -change "@rpath/librocksdb.9.dylib" "${rocksdb}/lib/librocksdb.dylib" $out/bin/supernovad
+    ''}
 
-  postFixup = lib.optionalString (stdenv.isDarwin && rocksdb != null) ''
-    ${stdenv.cc.bintools.targetPrefix}install_name_tool -change "@rpath/librocksdb.8.dylib" "${rocksdb}/lib/librocksdb.dylib" $out/bin/cronosd
+    # Rename the binary to supernovad if on Windows
+    ${lib.optionalString (isWindows) ''
+      mv $out/bin/cronosd.exe $out/bin/supernovad.exe
+    ''}
+    
+    # Rename the binary to supernovad if on Linux
+    ${lib.optionalString (isLinux) ''
+      mv $out/bin/cronosd $out/bin/supernovad
+    ''}
   '';
-
+  
   doCheck = false;
   meta = with lib; {
-    description = "Official implementation of the Cronos blockchain protocol";
+    description = "Supernova EVM extension-chain";
     homepage = "https://cronos.org/";
     license = licenses.asl20;
-    mainProgram = "cronosd" + stdenv.hostPlatform.extensions.executable;
+    mainProgram = "supernovad" + stdenv.hostPlatform.extensions.executable;
     platforms = platforms.all;
   };
 }

@@ -44,7 +44,7 @@ func GetTxCmd() *cobra.Command {
 	cmd.AddCommand(CmdConvertTokens())
 	cmd.AddCommand(CmdSendToCryptoOrg())
 	cmd.AddCommand(CmdUpdateTokenMapping())
-	cmd.AddCommand(CmdTurnBridge())
+	// cmd.AddCommand(CmdTurnBridge())
 	cmd.AddCommand(CmdUpdatePermissions())
 	cmd.AddCommand(CmdStoreBlockList())
 	cmd.AddCommand(MigrateGenesisCmd())
