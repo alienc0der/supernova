@@ -48,56 +48,6 @@
           inherit (pkgs) rocksdb testground-image;
         };
         apps = {
-{
-  inputs = {
-    nixpkgs.url = "github:NixOS/nixpkgs/release-24.05";
-    flake-utils.url = "github:numtide/flake-utils";
-    nix-bundle-exe = {
-      url = "github:3noch/nix-bundle-exe";
-      flake = false;
-    };
-    gomod2nix = {
-      url = "github:obreitwi/gomod2nix/fix/go_mod_vendor";
-      inputs.nixpkgs.follows = "nixpkgs";
-      inputs.flake-utils.follows = "flake-utils";
-    };
-    poetry2nix = {
-      url = "github:nix-community/poetry2nix";
-      inputs.nixpkgs.follows = "nixpkgs";
-      inputs.flake-utils.follows = "flake-utils";
-    };
-  };
-
-  outputs =
-    {
-      self,
-      nixpkgs,
-      nix-bundle-exe,
-      gomod2nix,
-      flake-utils,
-      poetry2nix,
-    }:
-    let
-      rev = self.shortRev or "dirty";
-      mkApp = drv: {
-        type = "app";
-        program = "${drv}/bin/${drv.meta.mainProgram}";
-      };
-    in
-    (flake-utils.lib.eachDefaultSystem (
-      system:
-      let
-        pkgs = import nixpkgs {
-          inherit system;
-          overlays = self.overlays.default;
-          config = { };
-        };
-      in
-      rec {
-        packages = pkgs.cronos-matrix // {
-          inherit (pkgs) rocksdb testground-image;
-        };
-        apps = {
           cronosd = mkApp packages.cronosd;
           cronosd-testnet = mkApp packages.cronosd-testnet;
           stateless-testcase = {
