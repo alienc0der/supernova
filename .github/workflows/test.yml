@@ -1,10 +1,10 @@
 name: integration tests
 on:
+  workflow_dispatch:
   merge_group:
   pull_request:
   push:
     branches:
-      - main
       - release/**
     tags:
       - "*"

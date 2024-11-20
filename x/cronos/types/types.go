@@ -13,13 +13,15 @@ var (
 	TenPowTen = Ten.Exp(Ten, Ten, nil)
 )
 
+// EXTENSION-CHAIN
 const (
 	ibcDenomPrefix     = "ibc/"
 	ibcDenomLen        = len(ibcDenomPrefix) + 64
 	gravityDenomPrefix = "gravity0x"
 	gravityDenomLen    = len(gravityDenomPrefix) + 40
-	cronosDenomPrefix  = "cronos0x"
-	cronosDenomLen     = len(cronosDenomPrefix) + 40
+	cronosDenomPrefix  = "x0x"
+	// cronosDenomPrefix  = "cronos0x"
+	cronosDenomLen = len(cronosDenomPrefix) + 40
 )
 
 // IsValidIBCDenom returns true if denom is a valid ibc denom
@@ -53,7 +55,10 @@ func GetContractAddressFromDenom(denom string) (string, error) {
 	if strings.HasPrefix(denom, gravityDenomPrefix) {
 		contractAddress = denom[7:]
 	} else if strings.HasPrefix(denom, cronosDenomPrefix) {
-		contractAddress = denom[6:]
+
+		// EXTENSION-CHAIN
+		contractAddress = denom[1:]
+		// contractAddress = denom[6:]
 	}
 	if !common.IsHexAddress(contractAddress) {
 		return "", fmt.Errorf("invalid contract address (%s)", contractAddress)

@@ -22,8 +22,12 @@ var (
 	KeyMaxCallbackGas = []byte("MaxCallbackGas")
 )
 
+// EXTENSION-CHAIN
 const (
-	IbcCroDenomDefaultValue    = "ibc/6B5A664BF0AF4F71B2F0BAA33141E2F1321242FBD5D19762F541EC971ACB0865"
+	// hash() representing a SHA256 hashing function returning a string
+	// ibc_denom := 'ibc/' + hash('path' + 'base_denom')
+	// sha256(transfer/channel-0/xznn) = 7C17F42EA0A975EA77611A8084EA11B1DF651E67C16C4AE6F99340566B04FDD1
+	IbcCroDenomDefaultValue    = "ibc/7C17F42EA0A975EA77611A8084EA11B1DF651E67C16C4AE6F99340566B04FDD1"
 	IbcTimeoutDefaultValue     = uint64(86400000000000) // 1 day
 	MaxCallbackGasDefaultValue = uint64(50000)
 )
@@ -45,6 +49,7 @@ func NewParams(ibcCroDenom string, ibcTimeout uint64, cronosAdmin string, enable
 }
 
 // DefaultParams is the default parameter configuration for the cronos module
+// EXTENSION-CHAIN
 func DefaultParams() Params {
 	return Params{
 		IbcCroDenom:          IbcCroDenomDefaultValue,

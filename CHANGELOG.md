@@ -194,6 +194,12 @@
 ### Bug Fixes
 
 * (rpc) [#1397](https://github.com/crypto-org-chain/cronos/pull/1397) Avoid panic on invalid elasticity_multiplier.
+* (rpc) [#1466](https://github.com/crypto-org-chain/cronos/pull/1466) Fix handling of pending transactions related APIs.
+
+### Features
+
+* [#1406](https://github.com/crypto-org-chain/cronos/pull/1406) Add set-encryption-key for encryption module.
+* [#1411](https://github.com/crypto-org-chain/cronos/pull/1411) Add encrypt and decrypt cmds for message.
 
 ### Features
 
