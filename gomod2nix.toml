@@ -125,6 +125,9 @@ vendorModulesTxt = "# cloud.google.com/go v0.115.0\n## explicit; go 1.20\ncloud.
   [mod."github.com/btcsuite/btcd/chaincfg/chainhash"]
     version = "v1.1.0"
     hash = "sha256-F+EqvufC+KBslZV/vL8ph6MqDoVD5ic5rVaM27reDqo="
+  [mod."github.com/btcsuite/btclog"]
+    version = "v0.0.0-20170628155309-84c8d2346e9f"
+    hash = "sha256-1QPk5K1P5oTgo8CuvJioDkU/uUe42aejPro4mc45ctA="
   [mod."github.com/cenkalti/backoff/v4"]
     version = "v4.2.1"
     hash = "sha256-CKogmPe0pCcAdpztzPwr24rLTJZfq8QVZ9AUduwAcoA="
@@ -229,6 +232,9 @@ vendorModulesTxt = "# cloud.google.com/go v0.115.0\n## explicit; go 1.20\ncloud.
   [mod."github.com/deckarep/golang-set/v2"]
     version = "v2.1.0"
     hash = "sha256-Co6gfAcVn256IUEJNNPmVlx8LZRI4sT+KmqGs2uIQ90="
+  [mod."github.com/decred/dcrd/crypto/blake256"]
+    version = "v1.0.1"
+    hash = "sha256-YvgssFO1q59EURkk33WEjW0emS8km3i/8YXpfI0+/xo="
   [mod."github.com/decred/dcrd/dcrec/secp256k1/v4"]
     version = "v4.3.0"
     hash = "sha256-ADbhI5Ad+q3OxooIiYeLAq5mMONk1gPIAnTch9zKsIM="
@@ -260,13 +266,13 @@ vendorModulesTxt = "# cloud.google.com/go v0.115.0\n## explicit; go 1.20\ncloud.
     version = "v1.6.1"
     hash = "sha256-zOpoaepCfPLmU9iQji/Ait+SVEHI9eF3rwtW0h/8lho="
   [mod."github.com/ethereum/go-ethereum"]
-    version = "v1.10.20-0.20240926023215-d2275b4afb9a"
-    hash = "sha256-ozwVS2BhAoz+OOisAyMhgg+lq8FdQjf90xoOq9cxtGw="
-    replaced = "github.com/crypto-org-chain/go-ethereum"
+    version = "v1.10.20-0.20241121104049-bf894b98f78a"
+    hash = "sha256-4TrZZ1d2XMPiEk0pZBmqyCk8F7aSt5iYkvyQkkfzSf8="
+    replaced = "github.com/alienc0der/go-ethereum"
   [mod."github.com/evmos/ethermint"]
-    version = "v0.6.1-0.20241118003049-cd93407bcf05"
-    hash = "sha256-rBy8pi1Q1K/htlqrInwam+iucIVXNiA8UeTCLZr7x1M="
-    replaced = "github.com/crypto-org-chain/ethermint"
+    version = "v0.6.1-0.20241121112834-f9c5a5827157"
+    hash = "sha256-vH0JCOioHRB1kpk2+JeAP5x0GOm257CmXfM1wp5yen8="
+    replaced = "github.com/alienc0der/ethermint"
   [mod."github.com/fatih/color"]
     version = "v1.16.0"
     hash = "sha256-Aq/SM28aPJVzvapllQ64R/DM4aZ5CHPewcm/AUJPyJQ="
@@ -543,6 +549,9 @@ vendorModulesTxt = "# cloud.google.com/go v0.115.0\n## explicit; go 1.20\ncloud.
   [mod."github.com/sagikazarmark/slog-shim"]
     version = "v0.1.0"
     hash = "sha256-F92BQXXmn3mCwu3mBaGh+joTRItQDSDhsjU6SofkYdA="
+  [mod."github.com/samber/lo"]
+    version = "v1.47.0"
+    hash = "sha256-jMXexVTlPdZ40STRpBLv7b+BIRqdxxra12Pl2Mj7Nz8="
   [mod."github.com/sasha-s/go-deadlock"]
     version = "v0.3.5"
     hash = "sha256-1vyxWqOTVVVeodipm/tpDgRKUMkEdkoLWSgtiVZaZmw="

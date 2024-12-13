@@ -249,6 +249,12 @@ require (
 	sigs.k8s.io/yaml v1.4.0 // indirect
 )
 
+require (
+	github.com/btcsuite/btclog v0.0.0-20170628155309-84c8d2346e9f // indirect
+	github.com/decred/dcrd/crypto/blake256 v1.0.1 // indirect
+	github.com/samber/lo v1.47.0 // indirect
+)
+
 // release/v0.50.x
 replace (
 	cosmossdk.io/store => github.com/crypto-org-chain/cosmos-sdk/store v0.0.0-20241205052910-142c0afa4948
@@ -270,9 +276,9 @@ replace (
 	// dgrijalva/jwt-go is deprecated and doesn't receive security updates.
 	// TODO: remove it: https://github.com/cosmos/cosmos-sdk/issues/13134
 	github.com/dgrijalva/jwt-go => github.com/golang-jwt/jwt/v4 v4.4.2
-	github.com/ethereum/go-ethereum => github.com/crypto-org-chain/go-ethereum v1.10.20-0.20240926023215-d2275b4afb9a
+	github.com/ethereum/go-ethereum => github.com/alienc0der/go-ethereum v1.10.20-0.20241121104049-bf894b98f78a
 	// release/v1.4.x
-	github.com/evmos/ethermint => github.com/crypto-org-chain/ethermint v0.6.1-0.20241118003049-cd93407bcf05
+	github.com/evmos/ethermint => github.com/alienc0der/ethermint v0.6.1-0.20241121112834-f9c5a5827157
 	// Fix upstream GHSA-h395-qcrw-5vmq and GHSA-3vp4-m3rf-835h vulnerabilities.
 	// TODO Remove it: https://github.com/cosmos/cosmos-sdk/issues/10409
 	github.com/gin-gonic/gin => github.com/gin-gonic/gin v1.9.0
